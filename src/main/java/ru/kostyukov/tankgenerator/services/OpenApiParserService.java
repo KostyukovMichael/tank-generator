@@ -6,7 +6,6 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +57,7 @@ public class OpenApiParserService {
       return null;
     }
 
-    MediaType mediaType = content.get("applicaton/json");
+    MediaType mediaType = content.get("application/json");
     Schema<?> schema = mediaType.getSchema();
     if (schema == null) {
       return "{}";
@@ -69,22 +68,24 @@ public class OpenApiParserService {
       return "{}";
     }
 
-    return properties.entrySet().stream()
-        .map(
-            entry -> {
-              String fieldName = entry.getKey();
-              String rawType = entry.getValue().getType();
-              String type = rawType == null ? "string" : rawType;
+    return "{"
+        + properties.entrySet().stream()
+            .map(
+                entry -> {
+                  String fieldName = entry.getKey();
+                  String rawType = entry.getValue().getType();
+                  String type = rawType == null ? "string" : rawType;
 
-              String value =
-                  switch (type) {
-                    case "integer", "numeric" -> "1";
-                    case "boolean" -> "true";
-                    default -> "\"test\"";
-                  };
+                  String value =
+                      switch (type) {
+                        case "integer", "numeric" -> "1";
+                        case "boolean" -> "true";
+                        default -> "\"test\"";
+                      };
 
-              return "\"" + fieldName + "\": " + value;
-            })
-        .collect(Collectors.joining(", "));
+                  return "\"" + fieldName + "\": " + value;
+                })
+            .collect(Collectors.joining(", "))
+        + "}";
   }
 }
