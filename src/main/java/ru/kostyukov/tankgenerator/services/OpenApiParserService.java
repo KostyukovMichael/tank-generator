@@ -1,4 +1,4 @@
-package ru.kostyukov.tankgenerator.service;
+package ru.kostyukov.tankgenerator.services;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -6,13 +6,13 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
-import java.awt.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
-import ru.kostyukov.tankgenerator.model.Endpoint;
+import ru.kostyukov.tankgenerator.models.Endpoint;
 
 @Service
 public class OpenApiParserService {

@@ -1,4 +1,4 @@
-package ru.kostyukov.tankgenerator.model;
+package ru.kostyukov.tankgenerator.models;
 
 import lombok.Builder;
 import lombok.Data;
