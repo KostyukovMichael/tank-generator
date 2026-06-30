@@ -13,25 +13,22 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import ru.kostyukov.tankgenerator.dto.GenerationRequest;
 import ru.kostyukov.tankgenerator.models.Endpoint;
-import ru.kostyukov.tankgenerator.services.AmmoGeneratorService;
-import ru.kostyukov.tankgenerator.services.ArchiveService;
-import ru.kostyukov.tankgenerator.services.ConfigGeneratorService;
-import ru.kostyukov.tankgenerator.services.OpenApiParserService;
+import ru.kostyukov.tankgenerator.services.*;
 
 @RestController
 public class GenerationController {
   private final OpenApiParserService openApiParserService;
-  private final AmmoGeneratorService ammoGeneratorService;
+  private final AmmoGenerator ammoGenerator;
   private final ConfigGeneratorService configGeneratorService;
   private final ArchiveService archiveService;
 
   public GenerationController(
       OpenApiParserService openApiParserService,
-      AmmoGeneratorService ammoGeneratorService,
+      AmmoGenerator ammoGenerator,
       ConfigGeneratorService configGeneratorService,
       ArchiveService archiveService) {
     this.openApiParserService = openApiParserService;
-    this.ammoGeneratorService = ammoGeneratorService;
+    this.ammoGenerator = ammoGenerator;
     this.configGeneratorService = configGeneratorService;
     this.archiveService = archiveService;
   }
@@ -50,7 +47,7 @@ public class GenerationController {
 
     List<Endpoint> endpoints = openApiParserService.parseOpenApi(openApiContent);
 
-    String ammo = ammoGeneratorService.generateAmmo(endpoints, generationRequest);
+    String ammo = ammoGenerator.generateAmmo(endpoints, generationRequest);
     String loadYaml = configGeneratorService.generateLoadYaml(generationRequest);
     String readme = configGeneratorService.generateReadMe(generationRequest);
 

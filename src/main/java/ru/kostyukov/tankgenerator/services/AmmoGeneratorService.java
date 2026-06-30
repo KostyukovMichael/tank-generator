@@ -7,8 +7,9 @@ import ru.kostyukov.tankgenerator.dto.GenerationRequest;
 import ru.kostyukov.tankgenerator.models.Endpoint;
 
 @Service
-public class AmmoGeneratorService {
+public class AmmoGeneratorService implements AmmoGenerator {
 
+  @Override
   public String generateAmmo(List<Endpoint> endpoints, GenerationRequest generationRequest) {
     StringBuilder ammoBuilder = new StringBuilder();
 
@@ -43,7 +44,12 @@ public class AmmoGeneratorService {
           byte[] httpRequestBytes = httpRequestString.getBytes();
           String tag =
               method + "_" + path.replace("/", "_").toLowerCase().replaceAll("[^a-z0-9_]+", "");
-          ammoBuilder.append(httpRequestBytes.length).append(" ").append(tag).append("\n").append(httpRequestString);
+          ammoBuilder
+              .append(httpRequestBytes.length)
+              .append(" ")
+              .append(tag)
+              .append("\n")
+              .append(httpRequestString);
         });
 
     return ammoBuilder.toString();
