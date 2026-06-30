@@ -1,5 +1,7 @@
 package ru.kostyukov.tankgenerator.services.parse;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.MediaType;
@@ -7,14 +9,20 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import ru.kostyukov.tankgenerator.models.Endpoint;
 
 @Service
 public class OpenApiParserService {
+
+  private final ObjectMapper objectMapper;
+
+  public OpenApiParserService(ObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
+  }
 
   public List<Endpoint> parseOpenApi(String content) {
     List<Endpoint> endpoints = new ArrayList<>();
@@ -63,29 +71,53 @@ public class OpenApiParserService {
       return "{}";
     }
 
-    Map<String, Schema> properties = schema.getProperties();
-    if (properties == null || properties.isEmpty()) {
-      return "{}";
+    Object dummy = schemaHelper(schema);
+
+    try {
+      return objectMapper.writeValueAsString(dummy);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException("in OpenApiParserService in generateDummyBody: ", e);
+    }
+  }
+
+  private Object schemaHelper(Schema<?> schema) {
+    if (schema == null) {
+      return null;
     }
 
-    return "{"
-        + properties.entrySet().stream()
-            .map(
-                entry -> {
-                  String fieldName = entry.getKey();
-                  String rawType = entry.getValue().getType();
-                  String type = rawType == null ? "string" : rawType;
+    String type = schema.getType() == null ? "string" : schema.getType();
 
-                  String value =
-                      switch (type) {
-                        case "integer", "numeric" -> "1";
-                        case "boolean" -> "true";
-                        default -> "\"test\"";
-                      };
+    return switch (type) {
+      case "integer", "number" -> 1;
 
-                  return "\"" + fieldName + "\": " + value;
-                })
-            .collect(Collectors.joining(", "))
-        + "}";
+      case "boolean" -> true;
+
+      case "string" -> "test";
+
+      case "array" -> {
+        Schema<?> itemsSchema = schema.getItems();
+
+        if (itemsSchema != null) {
+          yield List.of(schemaHelper(itemsSchema));
+        }
+        yield List.of();
+      }
+
+      case "object" -> {
+        Map<String, Schema> properties = schema.getProperties();
+
+        if (properties == null || properties.isEmpty()) {
+          yield Map.of();
+        }
+
+        Map<String, Object> nestedObjects = new LinkedHashMap<>();
+        properties.forEach((key, valueSchema) -> nestedObjects.put(key, schemaHelper(valueSchema)));
+
+        yield nestedObjects;
+      }
+
+      default ->
+          throw new IllegalStateException("unexpected type in OpenApiParserService: " + type);
+    };
   }
 }
