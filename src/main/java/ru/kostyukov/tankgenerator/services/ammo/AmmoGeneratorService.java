@@ -1,4 +1,4 @@
-package ru.kostyukov.tankgenerator.services;
+package ru.kostyukov.tankgenerator.services.ammo;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;

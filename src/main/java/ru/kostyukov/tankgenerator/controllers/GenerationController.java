@@ -13,23 +13,30 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import ru.kostyukov.tankgenerator.dto.GenerationRequest;
 import ru.kostyukov.tankgenerator.models.Endpoint;
-import ru.kostyukov.tankgenerator.services.*;
+import ru.kostyukov.tankgenerator.services.ammo.AmmoGenerator;
+import ru.kostyukov.tankgenerator.services.archive.ArchiveService;
+import ru.kostyukov.tankgenerator.services.load.LoadYamlGenerator;
+import ru.kostyukov.tankgenerator.services.parse.OpenApiParserService;
+import ru.kostyukov.tankgenerator.services.readme.ReadmeGenerator;
 
 @RestController
 public class GenerationController {
   private final OpenApiParserService openApiParserService;
   private final AmmoGenerator ammoGenerator;
-  private final ConfigGeneratorService configGeneratorService;
+  private final LoadYamlGenerator loadYamlGenerator;
+  private final ReadmeGenerator readmeGenerator;
   private final ArchiveService archiveService;
 
   public GenerationController(
       OpenApiParserService openApiParserService,
       AmmoGenerator ammoGenerator,
-      ConfigGeneratorService configGeneratorService,
+      LoadYamlGenerator loadYamlGenerator,
+      ReadmeGenerator readmeGenerator,
       ArchiveService archiveService) {
     this.openApiParserService = openApiParserService;
     this.ammoGenerator = ammoGenerator;
-    this.configGeneratorService = configGeneratorService;
+    this.loadYamlGenerator= loadYamlGenerator;
+    this.readmeGenerator = readmeGenerator;
     this.archiveService = archiveService;
   }
 
@@ -48,8 +55,8 @@ public class GenerationController {
     List<Endpoint> endpoints = openApiParserService.parseOpenApi(openApiContent);
 
     String ammo = ammoGenerator.generateAmmo(endpoints, generationRequest);
-    String loadYaml = configGeneratorService.generateLoadYaml(generationRequest);
-    String readme = configGeneratorService.generateReadMe(generationRequest);
+    String loadYaml = loadYamlGenerator.generateLoadYaml(generationRequest);
+    String readme = readmeGenerator.generateReadme(generationRequest);
 
     return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_OCTET_STREAM)

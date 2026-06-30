@@ -1,32 +1,12 @@
-package ru.kostyukov.tankgenerator.services;
+package ru.kostyukov.tankgenerator.services.readme;
 
 import org.springframework.stereotype.Service;
 import ru.kostyukov.tankgenerator.dto.GenerationRequest;
 
 @Service
-public class ConfigGeneratorService {
-
-  // TODO добавить поддержку нелинейной нагрузки
-  public String generateLoadYaml(GenerationRequest generationRequest) {
-    return
-"""
-phantom:
-  address: %s
-  ammofile: ammo.txt
-  ammo_type: phantom
-  load_profile:
-    load_type: rps
-    schedule: line(1, %d, %s)
-  headers:
-  - "[User-Agent: Tank]"
-"""
-        .formatted(
-            generationRequest.getTargetHost(),
-            generationRequest.getRps(),
-            generationRequest.getDuration());
-  }
-
-  public String generateReadMe(GenerationRequest generationRequest) {
+public class ReadmeGeneratorService implements ReadmeGenerator {
+  @Override
+  public String generateReadme(GenerationRequest generationRequest) {
     return
 """
 # Инструкция по запуску нагрузочного теста с помощью Yandex.Tank

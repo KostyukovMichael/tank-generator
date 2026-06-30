@@ -1,4 +1,4 @@
-package ru.kostyukov.tankgenerator.services;
+package ru.kostyukov.tankgenerator.services.ammo;
 
 import java.util.List;
 import ru.kostyukov.tankgenerator.dto.GenerationRequest;

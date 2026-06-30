@@ -1,4 +1,4 @@
-package ru.kostyukov.tankgenerator.services;
+package ru.kostyukov.tankgenerator.services.archive;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

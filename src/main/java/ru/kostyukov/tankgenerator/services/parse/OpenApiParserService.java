@@ -1,4 +1,4 @@
-package ru.kostyukov.tankgenerator.services;
+package ru.kostyukov.tankgenerator.services.parse;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
