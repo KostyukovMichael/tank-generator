@@ -2,6 +2,7 @@ package ru.kostyukov.tankgenerator.services.load;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import java.util.List;
 import org.springframework.stereotype.Service;
 import ru.kostyukov.tankgenerator.dto.GenerationRequest;
 import ru.kostyukov.tankgenerator.models.yaml.*;
@@ -25,7 +26,7 @@ public class LoadYamlGeneratorService implements LoadYamlGenerator {
             "ammo.txt",
             "phantom",
             loadProfile,
-            "[User-Agent: Tank]");
+            List.of("[User-Agent: Tank]"));
 
     TankConfig tankConfig = new TankConfig(phantomConfig);
 

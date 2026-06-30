@@ -5,9 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class TankgeneratorApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(TankgeneratorApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(TankgeneratorApplication.class, args);
+  }
 }

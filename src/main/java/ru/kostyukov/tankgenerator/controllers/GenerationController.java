@@ -35,7 +35,7 @@ public class GenerationController {
       ArchiveService archiveService) {
     this.openApiParserService = openApiParserService;
     this.ammoGenerator = ammoGenerator;
-    this.loadYamlGenerator= loadYamlGenerator;
+    this.loadYamlGenerator = loadYamlGenerator;
     this.readmeGenerator = readmeGenerator;
     this.archiveService = archiveService;
   }
