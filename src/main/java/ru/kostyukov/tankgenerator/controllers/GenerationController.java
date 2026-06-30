@@ -1,11 +1,8 @@
 package ru.kostyukov.tankgenerator.controllers;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.kostyukov.tankgenerator.dto.GenerationRequest;
 import ru.kostyukov.tankgenerator.models.Endpoint;
 import ru.kostyukov.tankgenerator.services.AmmoGeneratorService;
+import ru.kostyukov.tankgenerator.services.ArchiveService;
 import ru.kostyukov.tankgenerator.services.ConfigGeneratorService;
 import ru.kostyukov.tankgenerator.services.OpenApiParserService;
 
@@ -25,14 +23,17 @@ public class GenerationController {
   private final OpenApiParserService openApiParserService;
   private final AmmoGeneratorService ammoGeneratorService;
   private final ConfigGeneratorService configGeneratorService;
+  private final ArchiveService archiveService;
 
   public GenerationController(
       OpenApiParserService openApiParserService,
       AmmoGeneratorService ammoGeneratorService,
-      ConfigGeneratorService configGeneratorService) {
+      ConfigGeneratorService configGeneratorService,
+      ArchiveService archiveService) {
     this.openApiParserService = openApiParserService;
     this.ammoGeneratorService = ammoGeneratorService;
     this.configGeneratorService = configGeneratorService;
+    this.archiveService = archiveService;
   }
 
   @PostMapping(value = "/generate", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -56,31 +57,6 @@ public class GenerationController {
     return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"tank-configure.zip\"")
-        .body(zipFiles(ammo, loadYaml, readme));
-  }
-
-  private byte[] zipFiles(String ammo, String loadYaml, String readme) throws IOException {
-    ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-
-    try (ZipOutputStream zipOut = new ZipOutputStream(byteOut)) {
-      ZipEntry ammoEntry = new ZipEntry("ammo.txt");
-      zipOut.putNextEntry(ammoEntry);
-      zipOut.write(ammo.getBytes(StandardCharsets.UTF_8));
-      zipOut.closeEntry();
-
-      ZipEntry loadYamlEntry = new ZipEntry("load.yaml");
-      zipOut.putNextEntry(loadYamlEntry);
-      zipOut.write(loadYaml.getBytes(StandardCharsets.UTF_8));
-      zipOut.closeEntry();
-
-      ZipEntry readmeEntry = new ZipEntry("README.md");
-      zipOut.putNextEntry(readmeEntry);
-      zipOut.write(readme.getBytes(StandardCharsets.UTF_8));
-      zipOut.closeEntry();
-
-      zipOut.finish();
-    }
-
-    return byteOut.toByteArray();
+        .body(archiveService.zipFiles(ammo, loadYaml, readme));
   }
 }
