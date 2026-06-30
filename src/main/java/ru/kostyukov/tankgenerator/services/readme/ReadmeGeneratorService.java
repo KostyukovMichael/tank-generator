@@ -7,26 +7,29 @@ import ru.kostyukov.tankgenerator.dto.GenerationRequest;
 public class ReadmeGeneratorService implements ReadmeGenerator {
   @Override
   public String generateReadme(GenerationRequest generationRequest) {
-    return
-"""
-# Инструкция по запуску нагрузочного теста с помощью Yandex.Tank
 
-Конфигурационные файлы для тестируемого хоста `%s` успешно сгенерированы.
+    // TODO или пусть сам разбирается?
+    String content =
+        """
+        # Инструкция по запуску нагрузочного теста с помощью Yandex.Tank
 
-## Архив содержит:
-- `ammo.txt` - файл с запросами.
-- `load.yaml` - конфигурационный файл для запуска Yandex.Tank.
+        Конфигурационные файлы для тестируемого хоста `%s` успешно сгенерированы.
 
-## Запуск тестирования:
-Стандартный запуск происходит через Docker:
+        ## Архив содержит:
+        - `ammo.txt` - файл с запросами.
+        - `load.yaml` - конфигурационный файл для запуска Yandex.Tank.
 
-```bash
-docker run \\
-  -v $(pwd):/var/loadtest \\
-  --net="host" \\
-  -it yandex/load-tank
-```
-"""
-        .formatted(generationRequest.getTargetHost());
+        ## Запуск тестирования:
+        Стандартный запуск происходит через Docker:
+
+        ```bash
+        docker run \\\\
+          -v $(pwd):/var/loadtest \\\\
+          --net="host" \\\\
+          -it yandex/yandex-tank
+        ```
+        """;
+
+    return content.formatted(generationRequest.getTargetHost());
   }
 }
