@@ -20,7 +20,7 @@ public class AmmoGeneratorService implements AmmoGenerator {
 
     endpoints.forEach(
         endpoint -> {
-          String path = endpoint.getPath().replaceAll("\\{[^}]+}", "1");
+          String path = PathResolver.resolvePath(endpoint.getPath());
 
           Map<String, String> headers = new LinkedHashMap<>();
           headers.put(HttpHeaders.HOST, generationRequest.getTargetHost());
