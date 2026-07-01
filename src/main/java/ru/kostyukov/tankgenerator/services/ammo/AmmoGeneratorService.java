@@ -1,13 +1,18 @@
 package ru.kostyukov.tankgenerator.services.ammo;
 
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import ru.kostyukov.tankgenerator.dto.GenerationRequest;
 import ru.kostyukov.tankgenerator.models.Endpoint;
+import ru.kostyukov.tankgenerator.models.HttpRequest;
 
 @Service
 public class AmmoGeneratorService implements AmmoGenerator {
+  private static final String USER_AGENT = "Tank";
 
   @Override
   public String generateAmmo(List<Endpoint> endpoints, GenerationRequest generationRequest) {
@@ -16,34 +21,30 @@ public class AmmoGeneratorService implements AmmoGenerator {
     endpoints.forEach(
         endpoint -> {
           String path = endpoint.getPath().replaceAll("\\{[^}]+}", "1");
-          String method = endpoint.getMethod();
-          String body = endpoint.getBody();
 
-          StringBuilder httpBuilder = new StringBuilder();
-          httpBuilder.append(method).append(" ").append(path).append(" HTTP/1.1\r\n");
-
-          httpBuilder.append("Host: ").append(generationRequest.getTargetHost()).append("\r\n");
-          httpBuilder.append("User-Agent: Tank\r\n");
-          httpBuilder.append("Connection: Keep-Alive\r\n");
+          Map<String, String> headers = new LinkedHashMap<>();
+          headers.put(HttpHeaders.HOST, generationRequest.getTargetHost());
+          headers.put(HttpHeaders.USER_AGENT, USER_AGENT);
+          headers.put(HttpHeaders.CONNECTION, "Keep-Alive");
 
           String authToken = generationRequest.getAuthToken();
           if (authToken != null && !authToken.isEmpty()) {
-            httpBuilder.append("Authorization: Bearer ").append(authToken.strip()).append("\r\n");
+            headers.put(HttpHeaders.AUTHORIZATION, "Bearer" + authToken.strip());
           }
 
-          if (body != null && !body.isBlank() && List.of("POST", "PUT", "PATCH").contains(method)) {
-            byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
-            httpBuilder.append("Content-Type: application/json\r\n");
-            httpBuilder.append("Content-Length: ").append(bodyBytes.length).append("\r\n");
-            httpBuilder.append("\r\n").append(body);
-          } else {
-            httpBuilder.append("\r\n");
-          }
+          HttpRequest httpRequest =
+              new HttpRequest(
+                  endpoint.getMethod(), endpoint.getPath(), headers, endpoint.getBody());
 
-          String httpRequestString = httpBuilder.toString();
-          byte[] httpRequestBytes = httpRequestString.getBytes();
+          String httpRequestString = HttpFormatter.format(httpRequest);
+
+          byte[] httpRequestBytes = httpRequestString.getBytes(StandardCharsets.UTF_8);
+
           String tag =
-              method + "_" + path.replace("/", "_").toLowerCase().replaceAll("[^a-z0-9_]+", "");
+              endpoint.getMethod()
+                  + "_"
+                  + path.replace("/", "_").toLowerCase().replaceAll("[^a-z0-9_]+", "");
+
           ammoBuilder
               .append(httpRequestBytes.length)
               .append(" ")
