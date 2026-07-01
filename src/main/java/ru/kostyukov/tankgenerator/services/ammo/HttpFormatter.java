@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpHeaders;
 import ru.kostyukov.tankgenerator.models.HttpRequest;
 
-public class HttpFormatter {
+class HttpFormatter {
   private static final List<String> METHODS_WITH_BODY = List.of("POST", "PUT", "PATCH");
 
   public static String format(HttpRequest httpRequest) {

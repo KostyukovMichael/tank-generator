@@ -1,6 +1,6 @@
 package ru.kostyukov.tankgenerator.services.ammo;
 
-public class PathResolver {
+class PathResolver {
   private static final String REPLACE_MOCK = "1";
 
   public static String resolvePath(String path) {
