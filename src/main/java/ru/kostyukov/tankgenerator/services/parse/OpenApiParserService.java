@@ -1,7 +1,7 @@
 package ru.kostyukov.tankgenerator.services.parse;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.MediaType;
@@ -75,7 +75,7 @@ public class OpenApiParserService {
 
     try {
       return objectMapper.writeValueAsString(dummy);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new RuntimeException("in OpenApiParserService in generateDummyBody: ", e);
     }
   }

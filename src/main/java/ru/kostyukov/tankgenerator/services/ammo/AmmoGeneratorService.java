@@ -49,7 +49,7 @@ public class AmmoGeneratorService implements AmmoGenerator {
 
     String authToken = generationRequest.getAuthToken();
     if (authToken != null && !authToken.isEmpty()) {
-      headers.put(HttpHeaders.AUTHORIZATION, "Bearer" + authToken.strip());
+      headers.put(HttpHeaders.AUTHORIZATION, "Bearer " + authToken.strip());
     }
 
     return new HttpRequest(endpoint.getMethod(), path, headers, endpoint.getBody());

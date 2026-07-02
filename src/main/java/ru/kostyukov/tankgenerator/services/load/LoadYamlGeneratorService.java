@@ -12,6 +12,7 @@ public class LoadYamlGeneratorService implements LoadYamlGenerator {
 
   private final YAMLMapper yamlMapper = new YAMLMapper();
 
+  // TODO добавить поддержку параллельной нагрузки клиеинтами (не rps)
   // TODO добавить поддержку нелинейной нагрузки
   @Override
   public String generateLoadYaml(GenerationRequest generationRequest) {
