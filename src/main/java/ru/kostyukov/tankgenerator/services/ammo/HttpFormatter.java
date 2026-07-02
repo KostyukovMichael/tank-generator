@@ -8,7 +8,11 @@ import ru.kostyukov.tankgenerator.models.HttpRequest;
 class HttpFormatter {
   private static final List<String> METHODS_WITH_BODY = List.of("POST", "PUT", "PATCH");
 
-  public static String format(HttpRequest httpRequest) {
+  private HttpFormatter() {
+    throw new AssertionError("utility class doesn't need an instance");
+  }
+
+  static String format(HttpRequest httpRequest) {
     StringBuilder httpBuilder = new StringBuilder();
 
     httpBuilder
@@ -28,7 +32,11 @@ class HttpFormatter {
     if (body != null && !body.isBlank() && METHODS_WITH_BODY.contains(httpRequest.method())) {
       byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
       httpBuilder.append(HttpHeaders.CONTENT_TYPE).append(": application/json\r\n");
-      httpBuilder.append(HttpHeaders.CONTENT_LENGTH).append(": ").append(bodyBytes.length).append("\r\n");
+      httpBuilder
+          .append(HttpHeaders.CONTENT_LENGTH)
+          .append(": ")
+          .append(bodyBytes.length)
+          .append("\r\n");
       httpBuilder.append("\r\n").append(body);
     } else {
       httpBuilder.append("\r\n");

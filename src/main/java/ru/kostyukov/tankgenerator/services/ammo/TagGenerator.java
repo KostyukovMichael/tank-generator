@@ -2,8 +2,12 @@ package ru.kostyukov.tankgenerator.services.ammo;
 
 import ru.kostyukov.tankgenerator.exceptions.AmmoGenerationException;
 
-class TagGenerator {
-  public static String generateTag(String method, String path) {
+final class TagGenerator {
+  private TagGenerator() {
+    throw new AssertionError("utility class doesn't need an instance");
+  }
+
+  static String generateTag(String method, String path) {
     if (method == null || path == null) {
       throw new AmmoGenerationException("while generate tag: variable `method` or `path` is null");
     }
