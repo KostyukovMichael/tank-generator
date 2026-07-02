@@ -1,5 +1,6 @@
 package ru.kostyukov.tankgenerator.services.load;
 
+import ru.kostyukov.tankgenerator.config.TankGeneratorProperties;
 import ru.kostyukov.tankgenerator.dto.GenerationRequest;
 import ru.kostyukov.tankgenerator.exceptions.YamlGenerationException;
 import ru.kostyukov.tankgenerator.models.yaml.ConstSchedule;
@@ -8,36 +9,42 @@ import ru.kostyukov.tankgenerator.models.yaml.Schedule;
 import ru.kostyukov.tankgenerator.models.yaml.StepSchedule;
 
 public class ScheduleFactory {
-  private static final String DEFAULT_SCHEDULE = "line";
-  private static final int DEFAULT_RPS = 50;
-  private static final int DEFAULT_RPS_START = 1;
-  private static final int DEFAULT_RPS_END = 100;
-  private static final int DEFAULT_RPS_STEP = 10;
-  private static final String DEFAULT_DURATION = "60s";
+  private final TankGeneratorProperties properties;
 
-  public static Schedule createSchedule(GenerationRequest generationRequest) {
+  public ScheduleFactory(TankGeneratorProperties properties) {
+    this.properties = properties;
+  }
+
+  public Schedule createSchedule(GenerationRequest generationRequest) {
     String type =
         generationRequest.getSchedule() != null
             ? generationRequest.getSchedule()
-            : DEFAULT_SCHEDULE;
+            : properties.getDefaultSchedule();
 
-    int rps = generationRequest.getRps() != null ? generationRequest.getRps() : DEFAULT_RPS;
+    int rps =
+        generationRequest.getRps() != null
+            ? generationRequest.getRps()
+            : properties.getDefaultRps();
 
     int rpsStart =
         generationRequest.getRpsStart() != null
             ? generationRequest.getRpsStart()
-            : DEFAULT_RPS_START;
+            : properties.getDefaultRpsStart();
 
     int rpsEnd =
-        generationRequest.getRpsEnd() != null ? generationRequest.getRpsEnd() : DEFAULT_RPS_END;
+        generationRequest.getRpsEnd() != null
+            ? generationRequest.getRpsEnd()
+            : properties.getDefaultRpsEnd();
 
     int rpsStep =
-        generationRequest.getRpsStep() != null ? generationRequest.getRpsStep() : DEFAULT_RPS_STEP;
+        generationRequest.getRpsStep() != null
+            ? generationRequest.getRpsStep()
+            : properties.getDefaultRpsStep();
 
     String duration =
         generationRequest.getDuration() != null
             ? generationRequest.getDuration()
-            : DEFAULT_DURATION;
+            : properties.getDefaultDuration();
 
     return switch (type) {
       case "const" -> new ConstSchedule(rps, duration);

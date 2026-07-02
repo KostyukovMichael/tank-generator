@@ -6,13 +6,18 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import ru.kostyukov.tankgenerator.config.TankGeneratorProperties;
 import ru.kostyukov.tankgenerator.dto.GenerationRequest;
 import ru.kostyukov.tankgenerator.models.Endpoint;
 import ru.kostyukov.tankgenerator.models.HttpRequest;
 
 @Service
 public class AmmoGeneratorService implements AmmoGenerator {
-  private static final String USER_AGENT = "Tank";
+  private final TankGeneratorProperties properties;
+
+  public AmmoGeneratorService(TankGeneratorProperties properties) {
+    this.properties = properties;
+  }
 
   @Override
   public String generateAmmo(List<Endpoint> endpoints, GenerationRequest generationRequest) {
@@ -40,11 +45,12 @@ public class AmmoGeneratorService implements AmmoGenerator {
   }
 
   private HttpRequest getHttpRequest(GenerationRequest generationRequest, Endpoint endpoint) {
-    String path = PathResolver.resolvePath(endpoint.getPath());
+    String path =
+        PathResolver.resolvePath(endpoint.getPath(), properties.getDefaultReplaceParameter());
 
     Map<String, String> headers = new LinkedHashMap<>();
     headers.put(HttpHeaders.HOST, generationRequest.getTargetHost());
-    headers.put(HttpHeaders.USER_AGENT, USER_AGENT);
+    headers.put(HttpHeaders.USER_AGENT, properties.getDefaultUserAgent());
     headers.put(HttpHeaders.CONNECTION, "Keep-Alive");
 
     String authToken = generationRequest.getAuthToken();

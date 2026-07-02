@@ -4,24 +4,31 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import ru.kostyukov.tankgenerator.config.TankGeneratorProperties;
 import ru.kostyukov.tankgenerator.dto.GenerationRequest;
 import ru.kostyukov.tankgenerator.exceptions.YamlGenerationException;
 import ru.kostyukov.tankgenerator.models.yaml.*;
 
 @Service
 public class LoadYamlGeneratorService implements LoadYamlGenerator {
-
-  private static final String DEFAULT_LOAD_TYPE = "rps";
   private final YAMLMapper yamlMapper = new YAMLMapper();
+  private final TankGeneratorProperties properties;
+  private final ScheduleFactory scheduleFactory;
+
+  public LoadYamlGeneratorService(
+      TankGeneratorProperties properties, ScheduleFactory scheduleFactory) {
+    this.properties = properties;
+    this.scheduleFactory = scheduleFactory;
+  }
 
   @Override
   public String generateLoadYaml(GenerationRequest generationRequest) {
     String loadType =
         generationRequest.getLoadType() != null
             ? generationRequest.getLoadType()
-            : DEFAULT_LOAD_TYPE;
+            : properties.getDefaultLoadType();
 
-    Schedule schedule = ScheduleFactory.createSchedule(generationRequest);
+    Schedule schedule = scheduleFactory.createSchedule(generationRequest);
 
     LoadProfile loadProfile = new LoadProfile(loadType, schedule);
 
