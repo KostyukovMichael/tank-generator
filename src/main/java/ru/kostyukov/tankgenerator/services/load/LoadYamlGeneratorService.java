@@ -10,16 +10,19 @@ import ru.kostyukov.tankgenerator.models.yaml.*;
 @Service
 public class LoadYamlGeneratorService implements LoadYamlGenerator {
 
+  private static final String DEFAULT_LOAD_TYPE = "rps";
   private final YAMLMapper yamlMapper = new YAMLMapper();
 
-  // TODO добавить поддержку параллельной нагрузки клиеинтами (не rps)
-  // TODO добавить поддержку нелинейной нагрузки
   @Override
   public String generateLoadYaml(GenerationRequest generationRequest) {
-    Schedule schedule =
-        new LinearSchedule(1, generationRequest.getRps(), generationRequest.getDuration());
+    String loadType =
+        generationRequest.getLoadType() != null
+            ? generationRequest.getLoadType()
+            : DEFAULT_LOAD_TYPE;
 
-    LoadProfile loadProfile = new LoadProfile("rps", schedule);
+    Schedule schedule = ScheduleFactory.createSchedule(generationRequest);
+
+    LoadProfile loadProfile = new LoadProfile(loadType, schedule);
 
     PhantomConfig phantomConfig =
         new PhantomConfig(
@@ -27,6 +30,7 @@ public class LoadYamlGeneratorService implements LoadYamlGenerator {
             "ammo.txt",
             "phantom",
             loadProfile,
+            generationRequest.getInstances(),
             List.of("[User-Agent: Tank]"));
 
     TankConfig tankConfig = new TankConfig(phantomConfig);

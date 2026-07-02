@@ -11,5 +11,11 @@ public class GenerationRequest {
   private String targetHost;
   private String duration;
   private String authToken;
-  private int rps;
+  private String loadType;
+  private String schedule;
+  private Integer rps;
+  private Integer rpsStart;
+  private Integer rpsEnd;
+  private Integer rpsStep;
+  private Integer instances;
 }
