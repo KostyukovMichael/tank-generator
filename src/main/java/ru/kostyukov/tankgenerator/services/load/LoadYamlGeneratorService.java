@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import ru.kostyukov.tankgenerator.dto.GenerationRequest;
+import ru.kostyukov.tankgenerator.exceptions.YamlGenerationException;
 import ru.kostyukov.tankgenerator.models.yaml.*;
 
 @Service
@@ -38,7 +39,7 @@ public class LoadYamlGeneratorService implements LoadYamlGenerator {
     try {
       return yamlMapper.writeValueAsString(tankConfig);
     } catch (JsonProcessingException e) {
-      throw new RuntimeException("in LoadYamlGenerator: ", e);
+      throw new YamlGenerationException("error while writing config", e);
     }
   }
 }

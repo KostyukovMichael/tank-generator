@@ -1,7 +1,5 @@
 package ru.kostyukov.tankgenerator.services.parse;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.MediaType;
@@ -13,7 +11,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
+import ru.kostyukov.tankgenerator.exceptions.OpenApiParsingException;
 import ru.kostyukov.tankgenerator.models.Endpoint;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class OpenApiParserService {
@@ -31,7 +32,7 @@ public class OpenApiParserService {
     OpenAPI openAPI = parseResult.getOpenAPI();
 
     if (openAPI == null || openAPI.getPaths() == null) {
-      throw new IllegalArgumentException("не удалось распознать OpenAPI");
+      throw new OpenApiParsingException("OpenApi doesn't recognised");
     }
 
     openAPI
@@ -76,7 +77,7 @@ public class OpenApiParserService {
     try {
       return objectMapper.writeValueAsString(dummy);
     } catch (JacksonException e) {
-      throw new RuntimeException("in OpenApiParserService in generateDummyBody: ", e);
+      throw new OpenApiParsingException("error while parsing", e);
     }
   }
 
@@ -117,7 +118,8 @@ public class OpenApiParserService {
       }
 
       default ->
-          throw new IllegalStateException("unexpected type in OpenApiParserService: " + type);
+          throw new OpenApiParsingException(
+              "unexpected type: " + type + " in OpenApi specification");
     };
   }
 }

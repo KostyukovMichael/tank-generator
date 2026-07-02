@@ -1,6 +1,7 @@
 package ru.kostyukov.tankgenerator.services.load;
 
 import ru.kostyukov.tankgenerator.dto.GenerationRequest;
+import ru.kostyukov.tankgenerator.exceptions.YamlGenerationException;
 import ru.kostyukov.tankgenerator.models.yaml.ConstSchedule;
 import ru.kostyukov.tankgenerator.models.yaml.LinearSchedule;
 import ru.kostyukov.tankgenerator.models.yaml.Schedule;
@@ -42,7 +43,7 @@ public class ScheduleFactory {
       case "const" -> new ConstSchedule(rps, duration);
       case "line" -> new LinearSchedule(rpsStart, rpsEnd, duration);
       case "step" -> new StepSchedule(rpsStart, rpsEnd, rpsStep, duration);
-      default -> throw new IllegalArgumentException("in ScheduleFactory: wrong load type " + type);
+      default -> throw new YamlGenerationException("unexpected load type " + type);
     };
   }
 }
