@@ -86,7 +86,11 @@ public class OpenApiParserService {
       return null;
     }
 
-    String type = schema.getType() == null ? "string" : schema.getType();
+    // Оказывается type, может быть не указан явно
+    String type = schema.getType();
+    if (type == null) {
+      type = schema.getProperties() != null  && !schema.getProperties().isEmpty() ? "object" : "string";
+    }
 
     return switch (type) {
       case "integer", "number" -> 1;
