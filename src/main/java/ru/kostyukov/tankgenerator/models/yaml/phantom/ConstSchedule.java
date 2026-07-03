@@ -1,4 +1,4 @@
-package ru.kostyukov.tankgenerator.models.yaml;
+package ru.kostyukov.tankgenerator.models.yaml.phantom;
 
 public record ConstSchedule(int rps, String duration) implements Schedule {
   @Override

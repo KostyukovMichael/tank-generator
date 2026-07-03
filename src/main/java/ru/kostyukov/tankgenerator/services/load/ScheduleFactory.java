@@ -1,13 +1,15 @@
 package ru.kostyukov.tankgenerator.services.load;
 
+import org.springframework.stereotype.Component;
 import ru.kostyukov.tankgenerator.config.TankGeneratorProperties;
 import ru.kostyukov.tankgenerator.dto.GenerationRequest;
 import ru.kostyukov.tankgenerator.exceptions.YamlGenerationException;
-import ru.kostyukov.tankgenerator.models.yaml.ConstSchedule;
-import ru.kostyukov.tankgenerator.models.yaml.LinearSchedule;
-import ru.kostyukov.tankgenerator.models.yaml.Schedule;
-import ru.kostyukov.tankgenerator.models.yaml.StepSchedule;
+import ru.kostyukov.tankgenerator.models.yaml.phantom.ConstSchedule;
+import ru.kostyukov.tankgenerator.models.yaml.phantom.LinearSchedule;
+import ru.kostyukov.tankgenerator.models.yaml.phantom.Schedule;
+import ru.kostyukov.tankgenerator.models.yaml.phantom.StepSchedule;
 
+@Component
 public class ScheduleFactory {
   private final TankGeneratorProperties properties;
 

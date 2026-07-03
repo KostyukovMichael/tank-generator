@@ -1,4 +1,4 @@
-package ru.kostyukov.tankgenerator.models.yaml;
+package ru.kostyukov.tankgenerator.models.yaml.phantom;
 
 public record LinearSchedule(int rpsStart, int rpsEnd, String duration) implements Schedule {
   @Override

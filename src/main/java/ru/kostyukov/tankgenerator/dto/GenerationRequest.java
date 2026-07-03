@@ -18,4 +18,14 @@ public class GenerationRequest {
   private Integer rpsEnd;
   private Integer rpsStep;
   private Integer instances;
+
+  private Boolean autostopEnabled;
+  private String autostopHttpCode;
+  private String autostopHttpLimit;
+  private String autostopHttpWindow;
+  private String autostopNetCode;
+  private String autostopNetLimit;
+  private String autostopNetWindow;
+  private String autostopResponseTime;
+  private String autostopTimeWindow;
 }

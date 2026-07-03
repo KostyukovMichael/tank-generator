@@ -1,4 +1,4 @@
-package ru.kostyukov.tankgenerator.models.yaml;
+package ru.kostyukov.tankgenerator.models.yaml.phantom;
 
 public record StepSchedule(int rpsStart, int rpsEnd, int rpsStep, String duration)
     implements Schedule {

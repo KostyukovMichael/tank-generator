@@ -8,17 +8,25 @@ import ru.kostyukov.tankgenerator.config.TankGeneratorProperties;
 import ru.kostyukov.tankgenerator.dto.GenerationRequest;
 import ru.kostyukov.tankgenerator.exceptions.YamlGenerationException;
 import ru.kostyukov.tankgenerator.models.yaml.*;
+import ru.kostyukov.tankgenerator.models.yaml.autostop.AutostopConfig;
+import ru.kostyukov.tankgenerator.models.yaml.phantom.LoadProfile;
+import ru.kostyukov.tankgenerator.models.yaml.phantom.PhantomConfig;
+import ru.kostyukov.tankgenerator.models.yaml.phantom.Schedule;
 
 @Service
 public class LoadYamlGeneratorService implements LoadYamlGenerator {
   private final YAMLMapper yamlMapper = new YAMLMapper();
   private final TankGeneratorProperties properties;
   private final ScheduleFactory scheduleFactory;
+  private final AutostopFactory autostopFactory;
 
   public LoadYamlGeneratorService(
-      TankGeneratorProperties properties, ScheduleFactory scheduleFactory) {
+      TankGeneratorProperties properties,
+      ScheduleFactory scheduleFactory,
+      AutostopFactory autostopFactory) {
     this.properties = properties;
     this.scheduleFactory = scheduleFactory;
+    this.autostopFactory = autostopFactory;
   }
 
   @Override
@@ -41,7 +49,9 @@ public class LoadYamlGeneratorService implements LoadYamlGenerator {
             generationRequest.getInstances(),
             List.of("[User-Agent: Tank]"));
 
-    TankConfig tankConfig = new TankConfig(phantomConfig);
+    AutostopConfig autostopConfig = autostopFactory.createAutostopConfig(generationRequest);
+
+    TankConfig tankConfig = new TankConfig(phantomConfig, autostopConfig);
 
     try {
       return yamlMapper.writeValueAsString(tankConfig);

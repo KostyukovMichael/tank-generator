@@ -1,4 +1,4 @@
-package ru.kostyukov.tankgenerator.models.yaml;
+package ru.kostyukov.tankgenerator.models.yaml.phantom;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
