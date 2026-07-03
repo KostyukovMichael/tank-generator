@@ -38,7 +38,8 @@ public class AmmoGeneratorService implements AmmoGenerator {
               .append(" ")
               .append(tag)
               .append("\n")
-              .append(httpRequestString);
+              .append(httpRequestString)
+              .append("\n");
         });
 
     return ammoBuilder.toString();
