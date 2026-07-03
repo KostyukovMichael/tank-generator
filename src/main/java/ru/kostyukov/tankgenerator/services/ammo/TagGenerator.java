@@ -12,6 +12,8 @@ final class TagGenerator {
       throw new AmmoGenerationException("while generate tag: variable `method` or `path` is null");
     }
 
-    return method + "_" + path.replace("/", "_").toLowerCase().replaceAll("[^a-z0-9_]+", "");
+    return method
+        + "_"
+        + path.replace("/", "_").toLowerCase().replaceAll("[^a-z0-9_]+", "").replaceAll("_+", "_");
   }
 }
