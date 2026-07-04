@@ -3,6 +3,7 @@ package ru.kostyukov.tankgenerator.services.load;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import ru.kostyukov.tankgenerator.config.TankGeneratorProperties;
 import ru.kostyukov.tankgenerator.dto.GenerationRequest;
 import ru.kostyukov.tankgenerator.models.yaml.autostop.*;
@@ -47,32 +48,33 @@ public class AutostopFactory {
   }
 
   private boolean isHttpRequested(GenerationRequest request) {
-    return request.getAutostopHttpCode() != null
-        || request.getAutostopHttpLimit() != null
-        || request.getAutostopHttpWindow() != null;
+    return StringUtils.hasText(request.getAutostopHttpCode())
+        || StringUtils.hasText(request.getAutostopHttpLimit())
+        || StringUtils.hasText(request.getAutostopHttpWindow());
   }
 
   private boolean isNetRequested(GenerationRequest request) {
-    return request.getAutostopNetCode() != null
-        || request.getAutostopNetLimit() != null
-        || request.getAutostopNetWindow() != null;
+    return StringUtils.hasText(request.getAutostopNetCode())
+        || StringUtils.hasText(request.getAutostopNetLimit())
+        || StringUtils.hasText(request.getAutostopNetWindow());
   }
 
   private boolean isTimeRequested(GenerationRequest request) {
-    return request.getAutostopResponseTime() != null || request.getAutostopTimeWindow() != null;
+    return StringUtils.hasText(request.getAutostopResponseTime())
+        || StringUtils.hasText(request.getAutostopTimeWindow());
   }
 
   private HttpCondition buildHttpCondition(GenerationRequest request) {
     String httpCode =
-        request.getAutostopHttpCode() != null
+        StringUtils.hasText(request.getAutostopHttpCode())
             ? request.getAutostopHttpCode()
             : properties.getDefaultAutostopHttpCode();
     String httpLimit =
-        request.getAutostopHttpLimit() != null
+        StringUtils.hasText(request.getAutostopHttpLimit())
             ? request.getAutostopHttpLimit()
             : properties.getDefaultAutostopHttpLimit();
     String httpWindow =
-        request.getAutostopHttpWindow() != null
+        StringUtils.hasText(request.getAutostopHttpWindow())
             ? request.getAutostopHttpWindow()
             : properties.getDefaultAutostopHttpWindow();
 
@@ -81,15 +83,15 @@ public class AutostopFactory {
 
   private NetCondition buildNetCondition(GenerationRequest request) {
     String netCode =
-        request.getAutostopNetCode() != null
+        StringUtils.hasText(request.getAutostopNetCode())
             ? request.getAutostopNetCode()
             : properties.getDefaultAutostopNetCode();
     String netLimit =
-        request.getAutostopNetLimit() != null
+        StringUtils.hasText(request.getAutostopNetLimit())
             ? request.getAutostopNetLimit()
             : properties.getDefaultAutostopNetLimit();
     String netWindow =
-        request.getAutostopNetWindow() != null
+        StringUtils.hasText(request.getAutostopNetWindow())
             ? request.getAutostopNetWindow()
             : properties.getDefaultAutostopNetWindow();
 
@@ -98,11 +100,11 @@ public class AutostopFactory {
 
   private TimeCondition buildTimeCondition(GenerationRequest request) {
     String responseTime =
-        request.getAutostopResponseTime() != null
+        StringUtils.hasText(request.getAutostopResponseTime())
             ? request.getAutostopResponseTime()
             : properties.getDefaultAutostopResponseTime();
     String timeWindow =
-        request.getAutostopTimeWindow() != null
+        StringUtils.hasText(request.getAutostopTimeWindow())
             ? request.getAutostopTimeWindow()
             : properties.getDefaultAutostopTimeWindow();
 

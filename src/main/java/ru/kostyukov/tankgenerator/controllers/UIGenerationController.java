@@ -40,7 +40,7 @@ public class UIGenerationController {
     this.archiveService = archiveService;
   }
 
-  @GetMapping("/")
+  @GetMapping
   public String showPage(Model model) {
     model.addAttribute(new GenerationRequest());
     return "index";

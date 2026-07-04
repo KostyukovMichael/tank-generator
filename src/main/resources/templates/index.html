@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>YT-generator</title>
@@ -8,80 +8,86 @@
 <h1>YT-config-generator</h1>
 <h2>Введите желаемые значения для теста, после чего нажмите на "Загрузить" и архив с конфигурацией загрузиться на
     компьютер.</h2>
-<form>
+<hr/>
+<h3>Большинство полей можно не заполнять (тогда применяться настройки по умолчанию).</h3>
+<form enctype="multipart/form-data" th:action="@{/ui/generate}" th:method="post" th:object="${generationRequest}">
     <fieldset>
-        <label>Файл со спецификацией OpenApi
-            <input name="file" type="file"/>
-        </label>
+        <label>
+            <input accept=".json,.yaml,.yml" name="file" required type="file"/>
+        </label>Файл со спецификацией OpenApi
     </fieldset>
     <fieldset>
-        <label>Адрес тестируемого сервиса
-            <input name="target host" type="text"/>
-        </label><br>
-        <label>Длительность теста
-            <input name="duration" type="text"/>
-        </label><br>
-        <label>Токен аутентификации
-            <input name="authentification token" type="text"/>
-        </label><br>
-        <label>Тип нагрузки (rps или instances)
-            <input name="load type" type="text"/>
-        </label><br>
-        <label>Схема нагрузки (const, line или step)
-            <input name="schedule" type="text"/>
-        </label><br>
-        <label>Запросы в секунду
-            <input name="RPS" type="number"/>
-        </label><br>
-        <label>Запросы в секунду при запуске
-            <input name="RPS start value" type="number"/>
-        </label><br>
-        <label>Запросы в секунду в конце
-            <input name="RPS end value" type="number"/>
-        </label><br>
-        <label>Шаг запросов в секунду
-            <input name="RPS step" type="number"/>
-        </label><br>
-        <label>Количество одновременных потоков
-            <input name="number of instances" type="number"/>
-        </label><br>
+        <label>
+            <input placeholder="127.0.0.1:8080" required th:field="*{targetHost}" type="text"/>
+        </label>Адрес тестируемого сервиса<br>
+        <label>
+            <input th:field="*{duration}" type="text"/>
+        </label>Длительность теста<br>
+        <label>
+            <input th:field="*{authToken}" type="text"/>
+        </label>Токен аутентификации<br>
+        <label>
+            <select th:field="*{loadType}">
+                <option value="rps">RPS (запросы в секунду)</option>
+                <option value="instances">Instances (активные пользователи)</option>
+            </select>
+        </label>Тип нагрузки (rps или instances)<br>
+        <label>
+            <select th:field="*{schedule}">
+                <option value="const">Константная нагрузка</option>
+                <option value="line">Линейная нагрузка</option>
+                <option value="step">Пошаговая нагрузка</option>
+            </select>
+        </label>Схема нагрузки<br>
+        <label>
+            <input th:field="*{rps}" type="number"/>
+        </label>Запросы в секунду<br>
+        <label>
+            <input th:field="*{rpsStart}" type="number"/>
+        </label>Запросы в секунду при запуске теста<br>
+        <label>
+            <input th:field="*{rpsEnd}" type="number"/>
+        </label>Запросы в секунду в конце теста<br>
+        <label>
+            <input th:field="*{rpsStep}" type="number"/>
+        </label>Шаг запросов в секунду<br>
+        <label>
+            <input th:field="*{instances}" type="number"/>
+        </label>Количество одновременных потоков<br>
     </fieldset>
     <fieldset>
-        <label>Добавить авто-остановку теста при появлении ошибок
-            <input name="enable autostop" type="checkbox"/>
-        </label><br>
-        <fieldset>
-            <label>Http-код остановки
-                <input name="autostop http code" type="text"/>
-            </label><br>
-            <label>Количество/процент http-кодов в ответах
-                <input name="autostop http limit" type="text"/>
-            </label><br>
-            <label>Окно http-кодов
-                <input name="autostop http window" type="text"/>
-            </label><br>
-        </fieldset>
-        <fieldset>
-            <label>Net-код остановки
-                <input name="autostop net code" type="text"/>
-            </label><br>
-            <label>Количество/процент net-кодов в ответах
-                <input name="autostop net limit" type="text"/>
-            </label><br>
-            <label>Окно net-кодов
-                <input name="autostop net window" type="text"/>
-            </label><br>
-        </fieldset>
-        <fieldset>
-            <label>Время ответа сервера
-                <input name="autostop response time" type="text"/>
-            </label><br>
-            <label>Окно времени ответа
-                <input name="autostop time window" type="text"/>
-            </label><br>
-        </fieldset>
+        <label>
+            <input th:field="*{autostopEnabled}" type="checkbox"/>
+        </label>Добавить авто-остановку теста при появлении ошибок<br>
+        <hr/>
+        <label>
+            <input th:field="*{autostopHttpCode}" type="text"/>
+        </label>Http-код остановки<br>
+        <label>
+            <input th:field="*{autostopHttpLimit}" type="text"/>
+        </label>Количество/процент http-кодов в ответах<br>
+        <label>
+            <input th:field="*{autostopHttpWindow}" type="text"/>
+        </label>Окно http-кодов<br>
+        <hr/>
+        <label>
+            <input th:field="*{autostopNetCode}" type="text"/>
+        </label>Net-код остановки<br>
+        <label>
+            <input th:field="*{autostopNetLimit}" type="text"/>
+        </label>Количество/процент net-кодов в ответах<br>
+        <label>
+            <input th:field="*{autostopNetWindow}" type="text"/>
+        </label>Окно net-кодов<br>
+        <hr/>
+        <label>
+            <input th:field="*{autostopResponseTime}" type="text"/>
+        </label>Время ответа сервера<br>
+        <label>
+            <input th:field="*{autostopTimeWindow}" type="text"/>
+        </label>Окно времени ответа<br>
     </fieldset>
-<button type="submit">Загрузить</button>
+    <button type="submit">Загрузить</button>
 </form>
 </body>
 </html>
