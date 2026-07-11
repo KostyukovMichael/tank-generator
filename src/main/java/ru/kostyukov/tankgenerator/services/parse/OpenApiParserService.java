@@ -4,6 +4,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import net.datafaker.Faker;
 import org.springframework.stereotype.Service;
+import ru.kostyukov.tankgenerator.config.TankGeneratorProperties;
 import ru.kostyukov.tankgenerator.exceptions.OpenApiParsingException;
 import ru.kostyukov.tankgenerator.models.Endpoint;
 import tools.jackson.core.JacksonException;
@@ -21,10 +23,13 @@ import tools.jackson.databind.ObjectMapper;
 public class OpenApiParserService {
 
   private final ObjectMapper objectMapper;
+  private final TankGeneratorProperties tankGeneratorProperties;
   private final Faker faker = new Faker();
 
-  public OpenApiParserService(ObjectMapper objectMapper) {
+  public OpenApiParserService(
+      ObjectMapper objectMapper, TankGeneratorProperties tankGeneratorProperties) {
     this.objectMapper = objectMapper;
+    this.tankGeneratorProperties = tankGeneratorProperties;
   }
 
   public List<Endpoint> parseOpenApi(String content) {
@@ -45,13 +50,20 @@ public class OpenApiParserService {
                     .readOperationsMap()
                     .forEach(
                         (httpMethod, operation) -> {
-                          String dummyBody = generateDummyBody(operation);
-                          endpoints.add(
-                              Endpoint.builder()
-                                  .path(path)
-                                  .method(httpMethod.name())
-                                  .body(dummyBody)
-                                  .build());
+                          for (int i = 0;
+                              i < tankGeneratorProperties.getDefaultAmmoVariationsCount();
+                              i++) {
+                            String dummyBody = generateDummyBody(operation);
+
+                            String resolvedPath = resolvePathWithParameters(path, operation);
+
+                            endpoints.add(
+                                Endpoint.builder()
+                                    .path(resolvedPath)
+                                    .method(httpMethod.name())
+                                    .body(dummyBody)
+                                    .build());
+                          }
                         }));
 
     return endpoints;
@@ -128,6 +140,33 @@ public class OpenApiParserService {
           throw new OpenApiParsingException(
               "unexpected type: " + type + " in OpenApi specification");
     };
+  }
+
+  private String resolvePathWithParameters(String path, Operation operation) {
+    String resolvedPath = path;
+    List<String> queryParts = new ArrayList<>();
+
+    if (operation.getParameters() != null) {
+      for (Parameter parameter : operation.getParameters()) {
+        String name = parameter.getName();
+        String in = parameter.getIn();
+        Schema<?> schema = parameter.getSchema();
+
+        Object value = (schema != null) ? schemaHelper(schema, name) : "1";
+
+        if ("path".equalsIgnoreCase(in)) {
+          resolvedPath = resolvedPath.replace("{" + name + "}", value.toString());
+        } else if ("query".equalsIgnoreCase(in)) {
+          queryParts.add(name + "=" + value.toString());
+        }
+      }
+    }
+
+    if (!queryParts.isEmpty()) {
+      resolvedPath = resolvedPath + "?" + String.join("&", queryParts);
+    }
+
+    return resolvedPath;
   }
 
   private Object generateNumber(String fieldName) {
