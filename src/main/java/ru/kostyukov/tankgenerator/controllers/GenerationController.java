@@ -17,26 +17,22 @@ import ru.kostyukov.tankgenerator.services.ammo.AmmoGenerator;
 import ru.kostyukov.tankgenerator.services.archive.ArchiveService;
 import ru.kostyukov.tankgenerator.services.load.LoadYamlGenerator;
 import ru.kostyukov.tankgenerator.services.parse.OpenApiParserService;
-import ru.kostyukov.tankgenerator.services.readme.ReadmeGenerator;
 
 @RestController
 public class GenerationController {
   private final OpenApiParserService openApiParserService;
   private final AmmoGenerator ammoGenerator;
   private final LoadYamlGenerator loadYamlGenerator;
-  private final ReadmeGenerator readmeGenerator;
   private final ArchiveService archiveService;
 
   public GenerationController(
       OpenApiParserService openApiParserService,
       AmmoGenerator ammoGenerator,
       LoadYamlGenerator loadYamlGenerator,
-      ReadmeGenerator readmeGenerator,
       ArchiveService archiveService) {
     this.openApiParserService = openApiParserService;
     this.ammoGenerator = ammoGenerator;
     this.loadYamlGenerator = loadYamlGenerator;
-    this.readmeGenerator = readmeGenerator;
     this.archiveService = archiveService;
   }
 
@@ -56,11 +52,10 @@ public class GenerationController {
 
     String ammo = ammoGenerator.generateAmmo(endpoints, generationRequest);
     String loadYaml = loadYamlGenerator.generateLoadYaml(generationRequest);
-    String readme = readmeGenerator.generateReadme(generationRequest);
 
     return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"tank-configure.zip\"")
-        .body(archiveService.zipFiles(ammo, loadYaml, readme));
+        .body(archiveService.zipFiles(ammo, loadYaml));
   }
 }
