@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import net.datafaker.Faker;
 import org.springframework.stereotype.Service;
 import ru.kostyukov.tankgenerator.exceptions.OpenApiParsingException;
 import ru.kostyukov.tankgenerator.models.Endpoint;
@@ -20,6 +21,7 @@ import tools.jackson.databind.ObjectMapper;
 public class OpenApiParserService {
 
   private final ObjectMapper objectMapper;
+  private final Faker faker = new Faker();
 
   public OpenApiParserService(ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
@@ -72,7 +74,7 @@ public class OpenApiParserService {
       return "{}";
     }
 
-    Object dummy = schemaHelper(schema);
+    Object dummy = schemaHelper(schema, null);
 
     try {
       return objectMapper.writeValueAsString(dummy);
@@ -81,12 +83,11 @@ public class OpenApiParserService {
     }
   }
 
-  private Object schemaHelper(Schema<?> schema) {
+  private Object schemaHelper(Schema<?> schema, String fieldName) {
     if (schema == null) {
       return null;
     }
 
-    // Оказывается type, может быть не указан явно
     String type = schema.getType();
     if (type == null) {
       type =
@@ -94,17 +95,17 @@ public class OpenApiParserService {
     }
 
     return switch (type) {
-      case "integer", "number" -> 1;
+      case "integer", "number" -> generateNumber(fieldName);
 
-      case "boolean" -> true;
+      case "boolean" -> faker.bool().bool();
 
-      case "string" -> "test";
+      case "string" -> generateString(fieldName);
 
       case "array" -> {
         Schema<?> itemsSchema = schema.getItems();
 
         if (itemsSchema != null) {
-          yield List.of(schemaHelper(itemsSchema));
+          yield List.of(schemaHelper(itemsSchema, fieldName));
         }
         yield List.of();
       }
@@ -117,7 +118,8 @@ public class OpenApiParserService {
         }
 
         Map<String, Object> nestedObjects = new LinkedHashMap<>();
-        properties.forEach((key, valueSchema) -> nestedObjects.put(key, schemaHelper(valueSchema)));
+        properties.forEach(
+            (key, valueSchema) -> nestedObjects.put(key, schemaHelper(valueSchema, key)));
 
         yield nestedObjects;
       }
@@ -126,5 +128,60 @@ public class OpenApiParserService {
           throw new OpenApiParsingException(
               "unexpected type: " + type + " in OpenApi specification");
     };
+  }
+
+  private Object generateNumber(String fieldName) {
+    String name = fieldName != null ? fieldName.toLowerCase() : "";
+
+    if (name.contains("id")) {
+      return faker.number().numberBetween(1, 99999);
+    }
+    if (name.contains("age")) {
+      return faker.number().numberBetween(18, 90);
+    }
+    if (name.contains("price") || name.contains("cost")) {
+      return faker.number().randomDouble(2, 1, 10000);
+    }
+
+    return faker.number().numberBetween(1, 1000);
+  }
+
+  private String generateString(String fieldName) {
+    String name = fieldName != null ? fieldName.toLowerCase() : "";
+
+    if (name.contains("name")) {
+
+      if (name.contains("first")) {
+        return faker.name().firstName();
+      }
+
+      if (name.contains("last")) {
+        return faker.name().lastName();
+      }
+
+      return faker.name().name();
+    }
+
+    if (name.contains("phone")) {
+      return faker.phoneNumber().phoneNumber();
+    }
+
+    if (name.contains("email")) {
+      return faker.internet().emailAddress();
+    }
+
+    if (name.contains("country")) {
+      return faker.country().name();
+    }
+
+    if (name.contains("city")) {
+      return faker.address().city();
+    }
+
+    if (name.contains("address")) {
+      return faker.address().fullAddress();
+    }
+
+    return faker.lorem().word();
   }
 }
