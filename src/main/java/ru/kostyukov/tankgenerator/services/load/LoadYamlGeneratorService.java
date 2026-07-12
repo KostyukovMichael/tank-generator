@@ -51,7 +51,18 @@ public class LoadYamlGeneratorService implements LoadYamlGenerator {
 
     AutostopConfig autostopConfig = autostopFactory.createAutostopConfig(generationRequest);
 
-    TankConfig tankConfig = new TankConfig(phantomConfig, autostopConfig);
+    InfluxConfig influxConfig = null;
+    if (properties.isDefaultInfluxEnabled()) {
+      influxConfig =
+          new InfluxConfig(
+              true,
+              properties.getDefaultInfluxAddress(),
+              properties.getDefaultInfluxPort(),
+              properties.getDefaultInfluxDatabase(),
+              properties.getDefaultInfluxTag());
+    }
+
+    TankConfig tankConfig = new TankConfig(phantomConfig, autostopConfig, influxConfig);
 
     try {
       return yamlMapper.writeValueAsString(tankConfig);

@@ -11,6 +11,6 @@ if %errorlevel% neq 0 (
 
 echo  Запуск нагрузочного теста Yandex.Tank
 
-docker run --rm -v "%cd%":/var/loadtest -it yandex/yandex-tank
+docker compose up
 
 pause

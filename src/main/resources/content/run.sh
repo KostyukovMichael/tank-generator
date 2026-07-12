@@ -7,4 +7,4 @@ fi
 
 echo " Запуск нагрузочного теста Yandex.Tank"
 
-docker run --rm -v "$(pwd)":/var/loadtest -it yandex/yandex-tank
+docker compose up

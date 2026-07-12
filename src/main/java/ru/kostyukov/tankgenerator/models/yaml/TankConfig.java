@@ -8,4 +8,5 @@ import ru.kostyukov.tankgenerator.models.yaml.phantom.PhantomConfig;
 public record TankConfig(
     @JsonProperty("phantom") PhantomConfig phantomConfig,
     @JsonProperty("autostop") @JsonInclude(JsonInclude.Include.NON_NULL)
-        AutostopConfig autostopConfig) {}
+        AutostopConfig autostopConfig,
+    @JsonProperty("influx") @JsonInclude(JsonInclude.Include.NON_NULL) InfluxConfig influxConfig) {}

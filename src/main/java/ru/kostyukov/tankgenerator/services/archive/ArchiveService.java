@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -22,38 +21,52 @@ public class ArchiveService {
   @Value("classpath:content/run.bat")
   private Resource runBatResource;
 
+  @Value("classpath:content/docker-compose.yaml")
+  private Resource dockerComposeResource;
+
+  @Value("classpath:content/grafana/provisioning/datasources/datasource.yaml")
+  private Resource datasourceResource;
+
+  @Value("classpath:content/grafana/provisioning/dashboards/dashboards.yaml")
+  private Resource dashboardsResource;
+
+  @Value("classpath:content/grafana/provisioning/dashboards/dashboard.json")
+  private Resource dashboardJsonResource;
+
   public byte[] zipFiles(String ammo, String loadYaml) throws IOException {
     ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 
     try (ZipOutputStream zipOut = new ZipOutputStream(byteOut)) {
-      ZipEntry ammoEntry = new ZipEntry("ammo.txt");
-      zipOut.putNextEntry(ammoEntry);
-      zipOut.write(ammo.getBytes(StandardCharsets.UTF_8));
-      zipOut.closeEntry();
-
-      ZipEntry loadYamlEntry = new ZipEntry("load.yaml");
-      zipOut.putNextEntry(loadYamlEntry);
-      zipOut.write(loadYaml.getBytes(StandardCharsets.UTF_8));
-      zipOut.closeEntry();
-
-      ZipEntry readmeEntry = new ZipEntry("README.md");
-      zipOut.putNextEntry(readmeEntry);
-      zipOut.write(readmeResource.getContentAsByteArray());
-      zipOut.closeEntry();
-
-      ZipEntry runShEntry = new ZipEntry("run.sh");
-      zipOut.putNextEntry(runShEntry);
-      zipOut.write(runShResource.getContentAsByteArray());
-      zipOut.closeEntry();
-
-      ZipEntry runBatEntry = new ZipEntry("run.bat");
-      zipOut.putNextEntry(runBatEntry);
-      zipOut.write(runBatResource.getContentAsByteArray());
-      zipOut.closeEntry();
+      writeEntry(zipOut, "ammo.txt", ammo.getBytes(StandardCharsets.UTF_8));
+      writeEntry(zipOut, "load.yaml", loadYaml.getBytes(StandardCharsets.UTF_8));
+      writeEntry(zipOut, "README.md", readmeResource.getContentAsByteArray());
+      writeEntry(zipOut, "run.sh", runShResource.getContentAsByteArray());
+      writeEntry(zipOut, "run.bat", runBatResource.getContentAsByteArray());
+      writeEntry(zipOut, "docker-compose.yaml", dockerComposeResource.getContentAsByteArray());
+      writeEntry(
+          zipOut,
+          "grafana/provisioning/datasources/datasource.yaml",
+          datasourceResource.getContentAsByteArray());
+      writeEntry(
+          zipOut,
+          "grafana/provisioning/dashboards/dashboards.yaml",
+          dashboardsResource.getContentAsByteArray());
+      writeEntry(
+          zipOut,
+          "grafana/provisioning/dashboards/dashboard.json",
+          dashboardJsonResource.getContentAsByteArray());
 
       zipOut.finish();
     }
 
     return byteOut.toByteArray();
+  }
+
+  private void writeEntry(ZipOutputStream zipOut, String fileName, byte[] content)
+      throws IOException {
+    var zipEntry = new ZipEntry(fileName);
+    zipOut.putNextEntry(zipEntry);
+    zipOut.write(content);
+    zipOut.closeEntry();
   }
 }
