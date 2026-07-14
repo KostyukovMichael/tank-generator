@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YT-generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5">YT-config-generator</h1>
+        <h2 class="display-8">
+            Заполните параметры теста, загрузите файл спецификации OpenAPI и скачайте готовый архив настроек для Yandex.Tank.
+        </h2>
+    </div>
+
+    <form enctype="multipart/form-data" th:action="@{/ui/generate}" th:method="post" th:object="${generationRequest}">
+
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white py-3">
+                <h5 class="card-title mb-0">1. Спецификация</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Файл OpenAPI</label>
+                        <input accept=".json,.yaml,.yml" name="file" required type="file" class="form-control" />
+                        <div class="form-text">Форматы JSON или YAML.</div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Адрес тестируемого сервиса</label>
+                        <input placeholder="127.0.0.1:8080" required th:field="*{targetHost}" type="text" class="form-control" />
+                        <div class="form-text">IP-адрес или домен с портом, куда Yandex.Tank будет отправлять запросы.</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label class="form-label fw-semibold">Токен аутентификации</label>
+                        <input th:field="*{authToken}" type="text" class="form-control" placeholder="eyJhbGciOiJIUzI1NiIsIn..." />
+                        <div class="form-text">Если указан, добавит заголовок Authorization: Bearer {ваш_токен}.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white py-3">
+                <h5 class="card-title mb-0">2, Профиль нагрузки</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Длительность теста</label>
+                        <input th:field="*{duration}" type="text" class="form-control" placeholder="60s" />
+                        <div class="form-text">Например: 60s, 5m, 1h. По умолчанию: 60s.</div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Тип нагрузки</label>
+                        <select th:field="*{loadType}" class="form-select">
+                            <option value="rps">RPS (запросы в секунду)</option>
+                            <option value="instances">Instances (активные пользователи)</option>
+                        </select>
+                        <div class="form-text">Каким типом измерять поток запросов.</div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold">Схема нагрузки</label>
+                        <select th:field="*{schedule}" class="form-select">
+                            <option value="const">Константная нагрузка</option>
+                            <option value="line">Линейная нагрузка</option>
+                            <option value="step">Пошаговая нагрузка</option>
+                        </select>
+                        <div class="form-text">Форма графика изменения нагрузки в ходе теста.</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-2 col-sm-6 mb-3">
+                        <label class="form-label ">Запросы/сек (RPS)</label>
+                        <input th:field="*{rps}" type="number" class="form-control" placeholder="50" />
+                        <div class="form-text">Для 'const'.</div>
+                    </div>
+                    <div class="col-md-2 col-sm-6 mb-3">
+                        <label class="form-label ">RPS на старте</label>
+                        <input th:field="*{rpsStart}" type="number" class="form-control" placeholder="1" />
+                        <div class="form-text">Для 'line' и 'step'.</div>
+                    </div>
+                    <div class="col-md-2 col-sm-6 mb-3">
+                        <label class="form-label">RPS в конце</label>
+                        <input th:field="*{rpsEnd}" type="number" class="form-control" placeholder="100" />
+                        <div class="form-text">Для 'line' и 'step'.</div>
+                    </div>
+                    <div class="col-md-2 col-sm-6 mb-3">
+                        <label class="form-label ">Шаг RPS</label>
+                        <input th:field="*{rpsStep}" type="number" class="form-control" placeholder="10" />
+                        <div class="form-text">Только для 'step'.</div>
+                    </div>
+                    <div class="col-md-4 col-sm-12 mb-3">
+                        <label class="form-label">Количество потоков</label>
+                        <input th:field="*{instances}" type="number" class="form-control" placeholder="1000" />
+                        <div class="form-text">Используется при типе нагрузки 'Instances'.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-dark py-3">
+                <h5 class="card-title mb-0">3. Авто-остановка теста (Autostop)</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-check form-switch mb-4">
+                    <input class="form-check-input" type="checkbox" role="switch" th:field="*{autostopEnabled}" id="autostopEnabledSwitch">
+                    <label class="form-check-label fw-bold" for="autostopEnabledSwitch">Активировать автоматическую остановку теста</label>
+                    <div class="form-text">Прервать тест раньше времени, если тестируемый сервис начал ломаться.</div>
+                </div>
+
+                <hr class="text-muted">
+
+                <div class="row mb-3">
+                    <div class="col-12"><h6 class="text-secondary fw-bold">1. Критерии по HTTP-кодам</h6></div>
+                    <div class="col-md-4">
+                        <label class="form-label">HTTP-код ошибки</label>
+                        <input th:field="*{autostopHttpCode}" type="text" class="form-control" placeholder="5xx" />
+                        <div class="form-text">Код или семейство кодов (например: 5xx, 404).</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Лимит ошибок</label>
+                        <input th:field="*{autostopHttpLimit}" type="text" class="form-control" placeholder="25%" />
+                        <div class="form-text">Количество или процент ошибок (например: 25, 10%).</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Временное окно</label>
+                        <input th:field="*{autostopHttpWindow}" type="text" class="form-control" placeholder="10s" />
+                        <div class="form-text">Период времени для проверки лимита (например: 10s).</div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12"><h6 class="text-secondary fw-bold">2. Критерии по Сетевым ошибкам</h6></div>
+                    <div class="col-md-4">
+                        <label class="form-label">Сетевой код ошибки</label>
+                        <input th:field="*{autostopNetCode}" type="text" class="form-control" placeholder="xx" />
+                        <div class="form-text">Сетевой код ошибки (например: xx, 110).</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Лимит ошибок</label>
+                        <input th:field="*{autostopNetLimit}" type="text" class="form-control" placeholder="25" />
+                        <div class="form-text">Допустимое число сетевых сбоев.</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Временное окно</label>
+                        <input th:field="*{autostopNetWindow}" type="text" class="form-control" placeholder="10s" />
+                        <div class="form-text">Период времени для проверки лимита (например: 10s).</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12"><h6 class="text-secondary fw-bold">3. Критерии по времени ответа (Latency)</h6></div>
+                    <div class="col-md-6">
+                        <label class="form-label">Максимальное время ответа</label>
+                        <input th:field="*{autostopResponseTime}" type="text" class="form-control" placeholder="1500ms" />
+                        <div class="form-text">Остановить тест, если время ответа выше (например: 1500ms, 2s).</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Временное окно</label>
+                        <input th:field="*{autostopTimeWindow}" type="text" class="form-control" placeholder="10s" />
+                        <div class="form-text">Как долго время ответа должно превышать лимит.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2 col-md-6 mx-auto mt-5 mb-5">
+            <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                Сгенерировать и Скачать архив (ZIP)
+            </button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
